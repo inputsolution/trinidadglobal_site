@@ -20,12 +20,55 @@
     opacity: 0;
     transform: translateY(24px);
     transition:
-      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
   }
   .fade-up.is-visible {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* Entrada escalonada del hero al cargar la página */
+  @keyframes heroIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .hero-in {
+    opacity: 0;
+    animation: heroIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: var(--hero-delay, 0ms);
+  }
+
+  /* Ken Burns: zoom lentísimo de la foto del hero */
+  @keyframes kenBurns {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.08);
+    }
+  }
+  .ken-burns {
+    animation: kenBurns 22s ease-out forwards;
+  }
+
+  /* Respeta usuarios con reduced-motion (accesibilidad corporativa) */
+  @media (prefers-reduced-motion: reduce) {
+    .fade-up,
+    .hero-in,
+    .ken-burns {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
   }
   /* Etiqueta lateral pequeña con bullet (estilo "• About UzOman") */
   .kicker {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useReveal } from './hooks/useReveal';
+import { useCountUp } from './hooks/useCountUp';
 import {
   NAV_LINKS,
   HERO,
@@ -32,16 +33,23 @@ const IMG = {
 function Reveal({
   children,
   className = '',
+  delay = 0,
 }: {
   children: React.ReactNode;
   className?: string;
+  delay?: number;
 }) {
-  const ref = useReveal<HTMLDivElement>();
+  const ref = useReveal<HTMLDivElement>(delay);
   return (
     <div ref={ref} className={`fade-up ${className}`}>
       {children}
     </div>
   );
+}
+
+function StatNumber({ value }: { value: string }) {
+  const { ref, value: shown } = useCountUp(value);
+  return <span ref={ref}>{shown}</span>;
 }
 
 function ArrowLink({ href, children }: { href: string; children: string }) {
@@ -178,28 +186,40 @@ function Hero() {
         <img
           src={IMG.hero}
           alt=""
-          className="h-full w-full object-cover"
+          className="ken-burns h-full w-full object-cover"
           loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-ink/85 via-navy/70 to-ink/60" />
       </div>
 
       <div className="container-x relative flex min-h-screen flex-col justify-center pt-28 pb-20">
-        <Reveal className="max-w-4xl">
-          <div className="mb-7 inline-flex items-center gap-3 text-sm font-medium uppercase tracking-[0.18em] text-white/75">
+        <div className="max-w-4xl">
+          <div
+            className="hero-in mb-7 inline-flex items-center gap-3 text-sm font-medium uppercase tracking-[0.18em] text-white/75"
+            style={{ '--hero-delay': '100ms' } as React.CSSProperties}
+          >
             <span className="h-px w-9 bg-white/50" />
             {HERO.label}
           </div>
-          <h1 className="text-[34px] font-bold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h1
+            className="hero-in text-[34px] font-bold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-6xl"
+            style={{ '--hero-delay': '220ms' } as React.CSSProperties}
+          >
             International procurement and trade coordination,{' '}
             <span className="text-white/80">
               grounded in five decades of Caribbean commerce.
             </span>
           </h1>
-          <p className="mt-7 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
+          <p
+            className="hero-in mt-7 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg"
+            style={{ '--hero-delay': '360ms' } as React.CSSProperties}
+          >
             {HERO.sub}
           </p>
-          <div className="mt-10 flex flex-wrap gap-4">
+          <div
+            className="hero-in mt-10 flex flex-wrap gap-4"
+            style={{ '--hero-delay': '500ms' } as React.CSSProperties}
+          >
             <a
               href="#contact"
               className="rounded-md bg-navy px-7 py-4 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-accent"
@@ -213,7 +233,7 @@ function Hero() {
               About the Company
             </a>
           </div>
-        </Reveal>
+        </div>
       </div>
 
       {/* Franja de stats sobre la imagen, parte inferior */}
@@ -226,7 +246,9 @@ function Hero() {
             ['B2B', 'Supplier & Partner Focus'],
           ].map(([k, v]) => (
             <div key={v} className="px-6 py-6">
-              <div className="text-2xl font-bold text-white">{k}</div>
+              <div className="text-2xl font-bold text-white">
+                <StatNumber value={k} />
+              </div>
               <div className="mt-1 text-xs text-white/55">{v}</div>
             </div>
           ))}
@@ -313,7 +335,8 @@ function BusinessAreas() {
           {BUSINESS_AREAS.map((a, i) => (
             <Reveal
               key={a.title}
-              className="group rounded-2xl border border-line bg-white p-9 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-cardHover"
+              delay={i * 90}
+              className="group rounded-2xl border border-line bg-white p-9 shadow-card transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:shadow-cardHover"
             >
               <div className="mb-6 flex items-center gap-4">
                 <span className="text-xl font-bold text-accent">
@@ -422,8 +445,8 @@ function Suppliers() {
           </Reveal>
         </div>
         <div className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
-          {SUPPLIERS.pillars.map((p) => (
-            <Reveal key={p.n} className="bg-ink/60 p-8">
+          {SUPPLIERS.pillars.map((p, i) => (
+            <Reveal key={p.n} delay={i * 90} className="bg-ink/60 p-8">
               <div className="text-3xl font-bold text-white/30">{p.n}</div>
               <h3 className="mt-6 text-base font-bold text-white">{p.t}</h3>
               <p className="mt-2 text-[14px] leading-relaxed text-white/55">
@@ -456,10 +479,11 @@ function Compliance() {
               </p>
             ))}
           </Reveal>
-          <Reveal className="space-y-4">
-            {COMPLIANCE.items.map((it) => (
-              <div
+          <div className="space-y-4">
+            {COMPLIANCE.items.map((it, i) => (
+              <Reveal
                 key={it.t}
+                delay={i * 90}
                 className="rounded-xl border border-line bg-white p-6 shadow-card"
               >
                 <div className="flex items-center gap-3">
@@ -471,9 +495,9 @@ function Compliance() {
                 <p className="mt-3 pl-[18px] text-[14px] leading-relaxed text-graphite">
                   {it.d}
                 </p>
-              </div>
+              </Reveal>
             ))}
-          </Reveal>
+          </div>
         </div>
       </div>
     </section>
@@ -631,7 +655,8 @@ function Contact() {
                 <button
                   type="submit"
                   disabled={sending}
-                  className="self-start rounded-md bg-navy px-7 py-4 text-sm font-semibold text-white transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60"
+                  style={{ backgroundColor: '#13294B', color: '#FFFFFF' }}
+                  className="mt-2 self-start rounded-md px-8 py-4 text-sm font-semibold shadow-lg ring-1 ring-navy/20 transition-all hover:!bg-accent hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {sending ? 'Sending…' : 'Send Inquiry'}
                 </button>
