@@ -12,8 +12,13 @@ import {
   FOOTER_DISCLAIMER,
 } from './content';
 
-// Endpoint del formulario. Reemplazar por el ID real de Formspree cuando esté.
-const FORMSPREE_ENDPOINT = '';
+// El formulario envía al backend Django (guarda la consulta en el sistema
+// y notifica al correo corporativo). Configurable por entorno: en Railway
+// se define VITE_API_BASE_URL apuntando al backend de producción.
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'https://trinidadpulsebackend-production.up.railway.app/api';
+const CONTACT_ENDPOINT = `${API_BASE_URL}/website/contact/`;
 
 // Fotografía corporativa de uso libre (Unsplash). Reemplazable por las definitivas.
 const IMG = {
@@ -477,21 +482,54 @@ function Compliance() {
 
 function Contact() {
   const [sent, setSent] = useState(false);
-  const configured = FORMSPREE_ENDPOINT.length > 0;
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!configured) return;
+    if (sending) return;
+    setError('');
+    setSending(true);
+
     const form = e.currentTarget;
-    const data = new FormData(form);
-    const res = await fetch(FORMSPREE_ENDPOINT, {
-      method: 'POST',
-      body: data,
-      headers: { Accept: 'application/json' },
-    });
-    if (res.ok) {
-      setSent(true);
-      form.reset();
+    const fd = new FormData(form);
+    // El backend (DRF) espera snake_case; el form usa los name del brief.
+    const payload = {
+      full_name: fd.get('full-name'),
+      company: fd.get('company'),
+      email: fd.get('email'),
+      country: fd.get('country'),
+      inquiry_type: fd.get('inquiry-type'),
+      message: fd.get('message'),
+    };
+
+    try {
+      const res = await fetch(CONTACT_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        setSent(true);
+        form.reset();
+      } else if (res.status === 429) {
+        setError(
+          'Too many submissions from your network. Please try again later.',
+        );
+      } else {
+        setError(
+          'We could not submit your inquiry. Please verify the form and try again.',
+        );
+      }
+    } catch {
+      setError(
+        'A network error occurred. Please check your connection and try again.',
+      );
+    } finally {
+      setSending(false);
     }
   };
 
@@ -535,7 +573,6 @@ function Contact() {
                 onSubmit={handleSubmit}
                 className="flex flex-col gap-4 rounded-2xl border border-line bg-haze p-8"
                 method="POST"
-                action={configured ? FORMSPREE_ENDPOINT : undefined}
               >
                 <div className="grid gap-4 sm:grid-cols-2">
                   <input
@@ -588,17 +625,15 @@ function Contact() {
                   placeholder="Briefly describe your inquiry or business context…"
                   className="rounded-md border border-line bg-white px-4 py-3 text-sm text-ink placeholder:text-graphite/50 focus:border-accent focus:outline-none"
                 />
-                {!configured && (
-                  <p className="text-xs text-graphite/60">
-                    Form delivery is not yet configured. Set the Formspree
-                    endpoint in <code>src/App.tsx</code> to enable submissions.
-                  </p>
+                {error && (
+                  <p className="text-sm text-red-600">{error}</p>
                 )}
                 <button
                   type="submit"
-                  className="self-start rounded-md bg-navy px-7 py-4 text-sm font-semibold text-white transition-colors hover:bg-accent"
+                  disabled={sending}
+                  className="self-start rounded-md bg-navy px-7 py-4 text-sm font-semibold text-white transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Send Inquiry
+                  {sending ? 'Sending…' : 'Send Inquiry'}
                 </button>
               </form>
             )}
