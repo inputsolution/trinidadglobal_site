@@ -13,32 +13,43 @@ import {
 } from './content';
 
 // Endpoint del formulario. Reemplazar por el ID real de Formspree cuando esté.
-// Mientras no esté configurado, el form muestra un aviso en lugar de enviar.
 const FORMSPREE_ENDPOINT = '';
+
+// Fotografía corporativa de uso libre (Unsplash). Reemplazable por las definitivas.
+const IMG = {
+  hero: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80',
+  ecosystem:
+    'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=1200&q=80',
+  suppliers:
+    'https://images.unsplash.com/photo-1577416412292-747c6607f055?auto=format&fit=crop&w=1200&q=80',
+};
 
 function Reveal({
   children,
   className = '',
-  as: Tag = 'div',
 }: {
   children: React.ReactNode;
   className?: string;
-  as?: 'div' | 'section';
 }) {
   const ref = useReveal<HTMLDivElement>();
   return (
-    <Tag ref={ref} className={`fade-up ${className}`}>
+    <div ref={ref} className={`fade-up ${className}`}>
       {children}
-    </Tag>
+    </div>
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function ArrowLink({ href, children }: { href: string; children: string }) {
   return (
-    <div className="mb-4 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.18em] text-accent">
-      <span className="h-px w-7 bg-accent" />
+    <a
+      href={href}
+      className="group inline-flex items-center gap-2 border-b border-ink pb-1 text-sm font-semibold text-ink transition-colors hover:border-accent hover:text-accent"
+    >
       {children}
-    </div>
+      <span className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+        ↗
+      </span>
+    </a>
   );
 }
 
@@ -63,59 +74,59 @@ export default function App() {
 function Nav() {
   const [open, setOpen] = useState(false);
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 border-b border-line bg-white/85 backdrop-blur">
-      <div className="container-x flex h-16 items-center justify-between">
+    <nav className="absolute inset-x-0 top-0 z-50">
+      <div className="container-x flex h-20 items-center justify-between">
         <a href="#home" className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ink text-sm font-semibold text-white">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/70 text-sm font-bold text-white">
             TG
           </span>
           <span className="leading-tight">
-            <span className="block text-sm font-semibold tracking-tight text-ink">
+            <span className="block text-base font-bold tracking-tight text-white">
               Trinidad Global
             </span>
-            <span className="block text-[11px] uppercase tracking-[0.16em] text-graphite">
+            <span className="block text-[10px] uppercase tracking-[0.18em] text-white/60">
               LLC — Wyoming, USA
             </span>
           </span>
         </a>
 
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-8 lg:flex">
           {NAV_LINKS.map((l) => (
             <a
               key={l.href}
               href={l.href}
-              className="text-sm text-graphite transition-colors hover:text-ink"
+              className="text-sm text-white/80 transition-colors hover:text-white"
             >
               {l.label}
             </a>
           ))}
           <a
             href="#contact"
-            className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent"
+            className="rounded-md bg-white px-5 py-2.5 text-sm font-semibold text-navy transition-colors hover:bg-white/90"
           >
             Contact
           </a>
         </div>
 
         <button
-          className="md:hidden"
+          className="flex flex-col gap-1.5 lg:hidden"
           aria-label="Toggle menu"
           onClick={() => setOpen((v) => !v)}
         >
-          <span className="block h-0.5 w-6 bg-ink" />
-          <span className="mt-1.5 block h-0.5 w-6 bg-ink" />
-          <span className="mt-1.5 block h-0.5 w-6 bg-ink" />
+          <span className="block h-0.5 w-6 bg-white" />
+          <span className="block h-0.5 w-6 bg-white" />
+          <span className="block h-0.5 w-6 bg-white" />
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-line bg-white md:hidden">
+        <div className="border-t border-white/10 bg-ink lg:hidden">
           <div className="container-x flex flex-col py-4">
             {NAV_LINKS.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
-                className="py-2 text-sm text-graphite"
+                className="py-2.5 text-sm text-white/80"
                 onClick={() => setOpen(false)}
               >
                 {l.label}
@@ -123,7 +134,7 @@ function Nav() {
             ))}
             <a
               href="#contact"
-              className="mt-2 rounded-md bg-ink px-4 py-2 text-center text-sm font-medium text-white"
+              className="mt-2 rounded-md bg-white px-5 py-2.5 text-center text-sm font-semibold text-navy"
               onClick={() => setOpen(false)}
             >
               Contact
@@ -137,49 +148,129 @@ function Nav() {
 
 function Hero() {
   return (
-    <section id="home" className="border-b border-line pt-32 pb-24 sm:pt-40">
-      <div className="container-x">
-        <Reveal className="max-w-3xl">
-          <div className="mb-6 inline-flex items-center gap-3 text-xs font-medium uppercase tracking-[0.18em] text-accent">
-            <span className="h-px w-7 bg-accent" />
+    <section id="home" className="relative min-h-screen overflow-hidden">
+      {/* Foto corporativa a pantalla completa con overlay azul (estilo referencia) */}
+      <div className="absolute inset-0">
+        <img
+          src={IMG.hero}
+          alt=""
+          className="h-full w-full object-cover"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-ink/85 via-navy/70 to-ink/60" />
+      </div>
+
+      <div className="container-x relative flex min-h-screen flex-col justify-center pt-28 pb-20">
+        <Reveal className="max-w-4xl">
+          <div className="mb-7 inline-flex items-center gap-3 text-sm font-medium uppercase tracking-[0.18em] text-white/75">
+            <span className="h-px w-9 bg-white/50" />
             {HERO.label}
           </div>
-          <h1 className="text-4xl font-semibold leading-[1.15] tracking-tight text-ink sm:text-5xl lg:text-6xl">
-            {HERO.headline.map((line, i) => (
-              <span key={i} className="block">
-                {line}
-              </span>
-            ))}
+          <h1 className="text-[40px] font-bold leading-[1.08] tracking-tight text-white sm:text-6xl lg:text-7xl">
+            International procurement
+            <br />
+            and trade coordination
           </h1>
-          <p className="mt-7 max-w-2xl text-lg leading-relaxed text-graphite">
+          <p className="mt-7 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
             {HERO.sub}
           </p>
-          <div className="mt-9 flex flex-wrap gap-3">
+          <div className="mt-10 flex flex-wrap gap-4">
+            <a
+              href="#contact"
+              className="rounded-md bg-navy px-7 py-4 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-accent"
+            >
+              Become a Partner
+            </a>
             <a
               href="#about"
-              className="rounded-md bg-ink px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent"
+              className="rounded-md border border-white/50 bg-white/5 px-7 py-4 text-sm font-semibold text-white backdrop-blur-sm transition duration-150 hover:border-white hover:bg-white hover:text-ink"
             >
               About the Company
             </a>
-            <a
-              href="#contact"
-              className="rounded-md border border-line px-6 py-3 text-sm font-medium text-ink transition-colors hover:border-ink"
-            >
-              Contact Us
-            </a>
           </div>
         </Reveal>
+      </div>
 
-        <Reveal className="mt-20 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line lg:grid-cols-4">
+      {/* Franja de stats sobre la imagen, parte inferior */}
+      <div className="absolute inset-x-0 bottom-0 border-t border-white/15 bg-ink/40 backdrop-blur-sm">
+        <div className="container-x grid grid-cols-2 divide-x divide-white/10 lg:grid-cols-4">
           {[
             ['50+', 'Years of Operational Roots'],
             ['RD', 'Caribbean Market Presence'],
             ['US', 'Incorporated Wyoming, USA'],
             ['B2B', 'Supplier & Partner Focus'],
           ].map(([k, v]) => (
-            <div key={v} className="bg-white p-6">
-              <div className="text-2xl font-semibold text-ink">{k}</div>
-              <div className="mt-1 text-sm text-graphite">{v}</div>
+            <div key={v} className="px-6 py-6">
+              <div className="text-2xl font-bold text-white">{k}</div>
+              <div className="mt-1 text-xs text-white/55">{v}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* Layout editorial: kicker lateral pequeño + titular grande a la derecha */
+function EditorialHead({
+  kicker,
+  title,
+  children,
+}: {
+  kicker: string;
+  title: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="grid gap-8 lg:grid-cols-[260px_1fr] lg:gap-16">
+      <Reveal>
+        <div className="kicker">{kicker}</div>
+      </Reveal>
+      <Reveal>
+        <h2 className="max-w-3xl text-3xl font-bold leading-[1.15] tracking-tight text-ink sm:text-4xl lg:text-5xl">
+          {title}
+        </h2>
+        {children}
+      </Reveal>
+    </div>
+  );
+}
+
+function About() {
+  return (
+    <section id="about" className="py-24 lg:py-32">
+      <div className="container-x">
+        <EditorialHead
+          kicker="About the Company"
+          title="We build international trade infrastructure through structured procurement."
+        />
+        <div className="mt-16 grid gap-12 lg:ml-[324px] lg:grid-cols-2 lg:gap-16">
+          <Reveal className="space-y-5">
+            {ABOUT.paragraphs.slice(0, 2).map((p, i) => (
+              <p key={i} className="text-[15px] leading-relaxed text-graphite">
+                {p}
+              </p>
+            ))}
+            <div className="pt-2">
+              <ArrowLink href="#business">Discover what we do</ArrowLink>
+            </div>
+          </Reveal>
+          <Reveal className="space-y-5">
+            {ABOUT.paragraphs.slice(2).map((p, i) => (
+              <p key={i} className="text-[15px] leading-relaxed text-graphite">
+                {p}
+              </p>
+            ))}
+          </Reveal>
+        </div>
+
+        <Reveal className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line shadow-card lg:grid-cols-4">
+          {ABOUT.facts.map((f) => (
+            <div key={f.k} className="bg-white p-7">
+              <div className="text-3xl font-bold text-navy">{f.k}</div>
+              <div className="mt-2 text-[13px] leading-relaxed text-graphite">
+                {f.v}
+              </div>
             </div>
           ))}
         </Reveal>
@@ -188,60 +279,32 @@ function Hero() {
   );
 }
 
-function About() {
-  return (
-    <section id="about" className="py-24">
-      <div className="container-x">
-        <Reveal>
-          <SectionLabel>About the Company</SectionLabel>
-          <h2 className="max-w-3xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            {ABOUT.h2}
-          </h2>
-        </Reveal>
-        <div className="mt-14 grid gap-14 lg:grid-cols-2">
-          <Reveal className="space-y-5">
-            {ABOUT.paragraphs.map((p, i) => (
-              <p key={i} className="leading-relaxed text-graphite">
-                {p}
-              </p>
-            ))}
-          </Reveal>
-          <Reveal className="divide-y divide-line border-l border-line pl-10">
-            {ABOUT.facts.map((f) => (
-              <div key={f.k} className="py-6 first:pt-0 last:pb-0">
-                <div className="text-2xl font-semibold text-ink">{f.k}</div>
-                <div className="mt-1 text-sm leading-relaxed text-graphite">
-                  {f.v}
-                </div>
-              </div>
-            ))}
-          </Reveal>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function BusinessAreas() {
   return (
-    <section id="business" className="border-y border-line bg-haze py-24">
+    <section id="business" className="border-y border-line bg-haze py-24 lg:py-32">
       <div className="container-x">
-        <Reveal>
-          <SectionLabel>Business Areas</SectionLabel>
-          <h2 className="max-w-3xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            International operations anchored in real-world commerce.
-          </h2>
-        </Reveal>
-        <div className="mt-14 grid gap-6 sm:grid-cols-2">
-          {BUSINESS_AREAS.map((a) => (
+        <EditorialHead
+          kicker="Business Areas"
+          title="International operations anchored in real-world commerce."
+        />
+        <div className="mt-16 grid gap-6 sm:grid-cols-2">
+          {BUSINESS_AREAS.map((a, i) => (
             <Reveal
               key={a.title}
-              className="rounded-xl border border-line bg-white p-8 transition-colors hover:border-ink/30"
+              className="group rounded-2xl border border-line bg-white p-9 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-cardHover"
             >
-              <h3 className="text-lg font-semibold text-ink">{a.title}</h3>
-              <p className="mt-3 leading-relaxed text-graphite">{a.body}</p>
+              <div className="mb-6 flex items-center gap-4">
+                <span className="text-xl font-bold text-accent">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="h-px flex-1 bg-line transition-colors group-hover:bg-accent/40" />
+              </div>
+              <h3 className="text-xl font-bold text-ink">{a.title}</h3>
+              <p className="mt-3 text-[15px] leading-relaxed text-graphite">
+                {a.body}
+              </p>
               {a.note && (
-                <p className="mt-5 border-t border-line pt-4 text-sm italic leading-relaxed text-graphite">
+                <p className="mt-6 border-t border-line pt-5 text-[13px] italic leading-relaxed text-graphite/80">
                   {a.note}
                 </p>
               )}
@@ -255,33 +318,44 @@ function BusinessAreas() {
 
 function Ecosystem() {
   return (
-    <section id="ecosystem" className="py-24">
+    <section id="ecosystem" className="py-24 lg:py-32">
       <div className="container-x">
-        <Reveal>
-          <SectionLabel>The Trinidad Automotive Ecosystem</SectionLabel>
-          <h2 className="max-w-3xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            {ECOSYSTEM.h2}
-          </h2>
-        </Reveal>
-        <div className="mt-14 grid gap-14 lg:grid-cols-2 lg:items-center">
-          <Reveal className="space-y-5">
-            {ECOSYSTEM.paragraphs.map((p, i) => (
-              <p key={i} className="leading-relaxed text-graphite">
-                {p}
-              </p>
-            ))}
+        <EditorialHead
+          kicker="The Trinidad Automotive Ecosystem"
+          title="A multi-decade automotive operation in the Dominican Republic."
+        />
+        <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <Reveal className="overflow-hidden rounded-2xl border border-line shadow-card">
+            <img
+              src={IMG.ecosystem}
+              alt="Container shipping and logistics operations"
+              className="h-full min-h-[340px] w-full object-cover"
+              loading="lazy"
+            />
           </Reveal>
-          <Reveal className="space-y-px overflow-hidden rounded-xl border border-line bg-line">
-            {ECOSYSTEM.timeline.map((it) => (
-              <div key={it.t} className="bg-white p-6">
-                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">
-                  {it.t}
+          <Reveal>
+            <div className="space-y-5">
+              {ECOSYSTEM.paragraphs.map((p, i) => (
+                <p key={i} className="text-[15px] leading-relaxed text-graphite">
+                  {p}
+                </p>
+              ))}
+            </div>
+            <div className="mt-8 space-y-0">
+              {ECOSYSTEM.timeline.map((it) => (
+                <div
+                  key={it.t}
+                  className="border-t border-line py-5 first:border-t-0 first:pt-0"
+                >
+                  <div className="text-[12px] font-bold uppercase tracking-[0.12em] text-accent">
+                    {it.t}
+                  </div>
+                  <div className="mt-1.5 text-sm leading-relaxed text-graphite">
+                    {it.d}
+                  </div>
                 </div>
-                <div className="mt-2 text-sm leading-relaxed text-graphite">
-                  {it.d}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </Reveal>
         </div>
       </div>
@@ -291,30 +365,46 @@ function Ecosystem() {
 
 function Suppliers() {
   return (
-    <section id="suppliers" className="border-y border-line bg-haze py-24">
-      <div className="container-x">
-        <Reveal>
-          <SectionLabel>Supplier Partnerships</SectionLabel>
-          <h2 className="max-w-3xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            {SUPPLIERS.h2}
-          </h2>
-        </Reveal>
-        <Reveal className="mt-8 max-w-3xl space-y-4">
-          {SUPPLIERS.intro.map((p, i) => (
-            <p key={i} className="leading-relaxed text-graphite">
-              {p}
-            </p>
-          ))}
-        </Reveal>
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <section
+      id="suppliers"
+      className="relative overflow-hidden bg-ink py-24 text-white lg:py-32"
+    >
+      <div className="absolute inset-0">
+        <img
+          src={IMG.suppliers}
+          alt=""
+          className="h-full w-full object-cover opacity-20"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-ink/70" />
+      </div>
+      <div className="container-x relative">
+        <div className="grid gap-8 lg:grid-cols-[260px_1fr] lg:gap-16">
+          <Reveal>
+            <div className="kicker text-white/70">
+              <span className="!bg-white" />
+              Supplier Partnerships
+            </div>
+          </Reveal>
+          <Reveal>
+            <h2 className="max-w-3xl text-3xl font-bold leading-[1.15] tracking-tight text-white sm:text-4xl lg:text-5xl">
+              We work with global brands, distributors, and manufacturers.
+            </h2>
+            <div className="mt-6 max-w-2xl space-y-4">
+              {SUPPLIERS.intro.map((p, i) => (
+                <p key={i} className="text-[15px] leading-relaxed text-white/65">
+                  {p}
+                </p>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+        <div className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
           {SUPPLIERS.pillars.map((p) => (
-            <Reveal
-              key={p.n}
-              className="rounded-xl border border-line bg-white p-7"
-            >
-              <div className="text-3xl font-semibold text-line">{p.n}</div>
-              <h3 className="mt-4 text-base font-semibold text-ink">{p.t}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-graphite">
+            <Reveal key={p.n} className="bg-ink/60 p-8">
+              <div className="text-3xl font-bold text-white/30">{p.n}</div>
+              <h3 className="mt-6 text-base font-bold text-white">{p.t}</h3>
+              <p className="mt-2 text-[14px] leading-relaxed text-white/55">
                 {p.d}
               </p>
             </Reveal>
@@ -327,18 +417,19 @@ function Suppliers() {
 
 function Compliance() {
   return (
-    <section id="compliance" className="py-24">
+    <section
+      id="compliance"
+      className="border-y border-line bg-haze py-24 lg:py-32"
+    >
       <div className="container-x">
-        <Reveal>
-          <SectionLabel>{COMPLIANCE.label}</SectionLabel>
-          <h2 className="max-w-3xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            {COMPLIANCE.h2}
-          </h2>
-        </Reveal>
-        <div className="mt-14 grid gap-14 lg:grid-cols-2 lg:items-start">
+        <EditorialHead
+          kicker={COMPLIANCE.label}
+          title={COMPLIANCE.h2}
+        />
+        <div className="mt-16 grid gap-12 lg:ml-[324px] lg:grid-cols-2 lg:gap-16">
           <Reveal className="space-y-5">
             {COMPLIANCE.paragraphs.map((p, i) => (
-              <p key={i} className="leading-relaxed text-graphite">
+              <p key={i} className="text-[15px] leading-relaxed text-graphite">
                 {p}
               </p>
             ))}
@@ -347,12 +438,15 @@ function Compliance() {
             {COMPLIANCE.items.map((it) => (
               <div
                 key={it.t}
-                className="rounded-lg border-l-2 border-accent bg-haze p-6"
+                className="rounded-xl border border-line bg-white p-6 shadow-card"
               >
-                <div className="text-xs font-semibold uppercase tracking-[0.1em] text-ink">
-                  {it.t}
+                <div className="flex items-center gap-3">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                  <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink">
+                    {it.t}
+                  </span>
                 </div>
-                <p className="mt-2 text-sm leading-relaxed text-graphite">
+                <p className="mt-3 pl-[18px] text-[14px] leading-relaxed text-graphite">
                   {it.d}
                 </p>
               </div>
@@ -369,11 +463,8 @@ function Contact() {
   const configured = FORMSPREE_ENDPOINT.length > 0;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (!configured) {
-      e.preventDefault();
-      return;
-    }
     e.preventDefault();
+    if (!configured) return;
     const form = e.currentTarget;
     const data = new FormData(form);
     const res = await fetch(FORMSPREE_ENDPOINT, {
@@ -388,34 +479,27 @@ function Contact() {
   };
 
   return (
-    <section
-      id="contact"
-      className="border-t border-line bg-ink py-24 text-white"
-    >
+    <section id="contact" className="bg-white py-24 lg:py-32">
       <div className="container-x">
-        <Reveal>
-          <div className="mb-4 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.18em] text-white/70">
-            <span className="h-px w-7 bg-white/40" />
-            Contact
-          </div>
-          <h2 className="max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">
-            {CONTACT.h2}
-          </h2>
-        </Reveal>
-
-        <div className="mt-14 grid gap-14 lg:grid-cols-2 lg:items-start">
-          <Reveal className="space-y-4 text-white/70">
-            <p className="leading-relaxed">{CONTACT.intro}</p>
-            <p className="text-sm leading-relaxed text-white/50">
+        <EditorialHead
+          kicker="Contact"
+          title="Supplier inquiries, partnership discussions, and business contacts."
+        />
+        <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <Reveal className="space-y-4">
+            <p className="text-[15px] leading-relaxed text-graphite">
+              {CONTACT.intro}
+            </p>
+            <p className="text-[13px] leading-relaxed text-graphite/70">
               {CONTACT.notice}
             </p>
-            <div className="space-y-5 pt-6">
+            <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line shadow-card">
               {CONTACT.details.map((d) => (
-                <div key={d.label}>
-                  <div className="text-[11px] uppercase tracking-[0.16em] text-white/40">
+                <div key={d.label} className="bg-white p-6">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">
                     {d.label}
                   </div>
-                  <div className="mt-1 text-sm text-white/80">{d.value}</div>
+                  <div className="mt-1.5 text-sm text-ink">{d.value}</div>
                 </div>
               ))}
             </div>
@@ -423,8 +507,8 @@ function Contact() {
 
           <Reveal>
             {sent ? (
-              <div className="rounded-xl border border-white/15 bg-white/5 p-8 text-center">
-                <p className="text-white">
+              <div className="rounded-2xl border border-line bg-haze p-10 text-center">
+                <p className="text-ink">
                   Thank you. Your inquiry has been received. A member of the
                   Trinidad Global team will respond to your message.
                 </p>
@@ -432,7 +516,7 @@ function Contact() {
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="flex flex-col gap-4"
+                className="flex flex-col gap-4 rounded-2xl border border-line bg-haze p-8"
                 method="POST"
                 action={configured ? FORMSPREE_ENDPOINT : undefined}
               >
@@ -441,13 +525,13 @@ function Contact() {
                     name="full-name"
                     required
                     placeholder="Full Name"
-                    className="rounded-md border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-white/40 focus:outline-none"
+                    className="rounded-md border border-line bg-white px-4 py-3 text-sm text-ink placeholder:text-graphite/50 focus:border-accent focus:outline-none"
                   />
                   <input
                     name="company"
                     required
                     placeholder="Company Name"
-                    className="rounded-md border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-white/40 focus:outline-none"
+                    className="rounded-md border border-line bg-white px-4 py-3 text-sm text-ink placeholder:text-graphite/50 focus:border-accent focus:outline-none"
                   />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -456,26 +540,26 @@ function Contact() {
                     type="email"
                     required
                     placeholder="Business Email"
-                    className="rounded-md border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-white/40 focus:outline-none"
+                    className="rounded-md border border-line bg-white px-4 py-3 text-sm text-ink placeholder:text-graphite/50 focus:border-accent focus:outline-none"
                   />
                   <input
                     name="country"
                     required
                     placeholder="Country"
-                    className="rounded-md border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-white/40 focus:outline-none"
+                    className="rounded-md border border-line bg-white px-4 py-3 text-sm text-ink placeholder:text-graphite/50 focus:border-accent focus:outline-none"
                   />
                 </div>
                 <select
                   name="inquiry-type"
                   required
                   defaultValue=""
-                  className="rounded-md border border-white/15 bg-white/5 px-4 py-3 text-sm text-white/70 focus:border-white/40 focus:outline-none"
+                  className="rounded-md border border-line bg-white px-4 py-3 text-sm text-graphite focus:border-accent focus:outline-none"
                 >
                   <option value="" disabled>
                     Nature of Inquiry
                   </option>
                   {CONTACT.inquiryOptions.map((o) => (
-                    <option key={o} value={o} className="bg-ink text-white">
+                    <option key={o} value={o}>
                       {o}
                     </option>
                   ))}
@@ -485,17 +569,17 @@ function Contact() {
                   required
                   rows={5}
                   placeholder="Briefly describe your inquiry or business context…"
-                  className="rounded-md border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-white/40 focus:outline-none"
+                  className="rounded-md border border-line bg-white px-4 py-3 text-sm text-ink placeholder:text-graphite/50 focus:border-accent focus:outline-none"
                 />
                 {!configured && (
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-graphite/60">
                     Form delivery is not yet configured. Set the Formspree
                     endpoint in <code>src/App.tsx</code> to enable submissions.
                   </p>
                 )}
                 <button
                   type="submit"
-                  className="self-start rounded-md bg-white px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-white/85"
+                  className="self-start rounded-md bg-navy px-7 py-4 text-sm font-semibold text-white transition-colors hover:bg-accent"
                 >
                   Send Inquiry
                 </button>
@@ -514,8 +598,13 @@ function Footer() {
       <div className="container-x">
         <div className="grid gap-12 border-b border-white/10 pb-12 lg:grid-cols-[2fr_1fr_1fr]">
           <div>
-            <h4 className="text-lg font-semibold">Trinidad Global LLC</h4>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/50">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/60 text-sm font-bold text-white">
+                TG
+              </span>
+              <h4 className="text-lg font-bold">Trinidad Global LLC</h4>
+            </div>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/50">
               International procurement and trade coordination entity supporting
               affiliated automotive operations — a Caribbean operation with over
               five decades of continuous commercial history.
@@ -525,7 +614,7 @@ function Footer() {
             </p>
           </div>
           <div>
-            <h5 className="text-[11px] uppercase tracking-[0.16em] text-white/40">
+            <h5 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/50">
               Navigation
             </h5>
             <ul className="mt-5 space-y-3 text-sm">
@@ -550,7 +639,7 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <h5 className="text-[11px] uppercase tracking-[0.16em] text-white/40">
+            <h5 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/50">
               Related
             </h5>
             <ul className="mt-5 space-y-3 text-sm">

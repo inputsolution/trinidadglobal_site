@@ -4,19 +4,25 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Paleta minimalista clara — SaaS B2B serio (Stripe/Mercury)
-        ink: '#0A0A0B',        // texto principal casi negro
-        graphite: '#52525B',   // texto secundario
-        line: '#E4E4E7',       // bordes finos
-        haze: '#FAFAFA',       // fondo de secciones alternas
-        accent: '#1D4ED8',     // azul sobrio (no eléctrico chillón)
-        accentSoft: '#EFF4FF', // fondo de acento muy tenue
+        // Paleta azul corporativo (referencia Uzbek-Oman)
+        ink: '#0F1B2D',        // azul marino casi negro (texto/titulares)
+        navy: '#13294B',       // azul marino (botones, acentos)
+        navy2: '#1E3A6E',
+        graphite: '#5B6577',   // texto secundario
+        line: '#E5E8EE',       // bordes finos
+        haze: '#F4F6F8',       // fondo de secciones alternas
+        accent: '#2F5BD7',     // azul vivo (links, detalles)
+        accentSoft: '#EAF0FD',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
       },
       maxWidth: {
-        container: '1200px',
+        container: '1240px',
+      },
+      boxShadow: {
+        card: '0 1px 2px rgba(15,27,45,0.04), 0 10px 30px -16px rgba(15,27,45,0.16)',
+        cardHover: '0 2px 6px rgba(15,27,45,0.06), 0 28px 56px -24px rgba(15,27,45,0.28)',
       },
     },
   },
