@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useReveal } from './hooks/useReveal';
 import {
   NAV_LINKS,
@@ -73,9 +73,28 @@ export default function App() {
 
 function Nav() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
-    <nav className="absolute inset-x-0 top-0 z-50">
-      <div className="container-x flex h-20 items-center justify-between">
+    <nav
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'border-b border-white/10 bg-ink/95 backdrop-blur-md'
+          : 'bg-transparent'
+      }`}
+    >
+      <div
+        className={`container-x flex items-center justify-between transition-all duration-300 ${
+          scrolled ? 'h-16' : 'h-20'
+        }`}
+      >
         <a href="#home" className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/70 text-sm font-bold text-white">
             TG
@@ -166,10 +185,11 @@ function Hero() {
             <span className="h-px w-9 bg-white/50" />
             {HERO.label}
           </div>
-          <h1 className="text-[40px] font-bold leading-[1.08] tracking-tight text-white sm:text-6xl lg:text-7xl">
-            International procurement
-            <br />
-            and trade coordination
+          <h1 className="text-[34px] font-bold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-6xl">
+            International procurement and trade coordination,{' '}
+            <span className="text-white/80">
+              grounded in five decades of Caribbean commerce.
+            </span>
           </h1>
           <p className="mt-7 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
             {HERO.sub}
@@ -240,10 +260,7 @@ function About() {
   return (
     <section id="about" className="py-24 lg:py-32">
       <div className="container-x">
-        <EditorialHead
-          kicker="About the Company"
-          title="We build international trade infrastructure through structured procurement."
-        />
+        <EditorialHead kicker="About the Company" title={ABOUT.h2} />
         <div className="mt-16 grid gap-12 lg:ml-[324px] lg:grid-cols-2 lg:gap-16">
           <Reveal className="space-y-5">
             {ABOUT.paragraphs.slice(0, 2).map((p, i) => (

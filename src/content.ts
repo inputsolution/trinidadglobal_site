@@ -101,7 +101,6 @@ export const SUPPLIERS = {
   h2: 'We work with global brands, distributors, and manufacturers.',
   intro: [
     'We establish transparent, long-term commercial relationships with global automotive manufacturers, distributors, logistics providers, and supply partners. Our supplier relationships are grounded in the purchasing history, operational continuity, and market presence of the affiliated Dominican automotive operations.',
-    'We are interested in establishing direct relationships with manufacturers and regional distributors across our product categories, with a focus on competitive pricing, supply continuity, and documented international trade terms.',
   ],
   pillars: [
     {
