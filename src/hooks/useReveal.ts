@@ -1,38 +1,32 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Añade la clase `is-visible` cuando el elemento entra en viewport,
- * para la animación sutil de aparición (fade-up). Opcionalmente aplica
- * un retraso escalonado (stagger) vía la variable CSS --reveal-delay.
+ * Añade la clase `in` cuando el elemento (con clase `.reveal`) entra en
+ * viewport, activando la animación sutil de aparición del diseño v2.
+ * Replica el IntersectionObserver del borrador HTML aprobado.
  */
-export function useReveal<T extends HTMLElement = HTMLDivElement>(
-  delayMs = 0,
-) {
+export function useReveal<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    if (delayMs > 0) {
-      el.style.setProperty('--reveal-delay', `${delayMs}ms`);
-    }
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
+            entry.target.classList.add('in');
             observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.12 },
+      { threshold: 0.1 },
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [delayMs]);
+  }, []);
 
   return ref;
 }
